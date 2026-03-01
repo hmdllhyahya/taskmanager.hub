@@ -39,6 +39,8 @@
     nav{--nav-progress:0;position:fixed;top:calc(20px - (10px * var(--nav-progress)));left:calc(50% - ((50% - 16px) * var(--nav-progress)));transform:translateX(calc(-50% * (1 - var(--nav-progress))));z-index:1000;display:flex;align-items:center;padding:0 6px;height:52px;border-radius:100px;background:rgba(247, 244, 237, 0.75);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border:1px solid rgba(255,255,255,0.6);box-shadow:0 8px 32px rgba(0,0,0,0.04);transition:padding .42s cubic-bezier(.22,1,.36,1),background .42s cubic-bezier(.22,1,.36,1),border-color .42s cubic-bezier(.22,1,.36,1),box-shadow .42s cubic-bezier(.22,1,.36,1);white-space:nowrap;will-change:top,left,transform;}
     .nav-logo{font-family:'Korataki', 'Michroma', sans-serif;font-size:15px;color:var(--text-main);text-decoration:none;padding:0 18px 0 14px;height:100%;display:flex;align-items:center;border-right:1px solid var(--border);flex-shrink:0;letter-spacing:0.1em;gap:2px;}
     .logo-short{opacity:0;transform:translateY(4px);position:absolute;pointer-events:none;}
+    nav{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;align-items:center;padding:0 6px;height:52px;border-radius:100px;background:rgba(247, 244, 237, 0.75);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border:1px solid rgba(255,255,255,0.6);box-shadow:0 8px 32px rgba(0,0,0,0.04);transition:all .38s cubic-bezier(.22,1,.36,1);white-space:nowrap;}
+    .nav-logo{font-family:'Korataki', 'Michroma', sans-serif;font-size:15px;color:var(--text-main);text-decoration:none;padding:0 18px 0 14px;height:100%;display:flex;align-items:center;border-right:1px solid var(--border);flex-shrink:0;letter-spacing:0.1em;}
     .nav-items{display:flex;align-items:center;height:100%;padding:0 4px;list-style:none;}
     .nav-item{height:100%;display:flex;align-items:center;}
     .nav-item>a{font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;padding:0 16px;height:38px;display:flex;align-items:center;border-radius:100px;cursor:none;transition:all .2s;}
@@ -52,6 +54,8 @@
     nav.collapsed .logo-short{position:relative;opacity:1;transform:translateY(0);}
     nav.collapsed .nav-hamburger{display:flex;}
     .nav-items,.logo-full,.logo-short{transition:all .35s cubic-bezier(.22,1,.36,1);}
+    .nav-hamburger{display:none;background:none;border:none;font-size:18px;cursor:none;padding:0 14px;color:var(--text-main);}
+    nav.slim { top: 12px; padding: 0 4px; background:rgba(247, 244, 237, 0.95); }
 
     /* HERO */
     #hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 100px;position:relative;overflow:hidden;background:var(--bg-color);}
@@ -61,6 +65,7 @@
     
     /* Fixed Title */
     .hero-title{font-size:clamp(40px,10vw,120px);line-height:1;color:var(--text-main);opacity:0;animation:fadeUp .9s .3s forwards;position:relative;z-index:2;font-weight:900;letter-spacing:0.02em;}
+    .hero-title{font-size:clamp(40px,10vw,120px);line-height:1;color:var(--text-main);opacity:0;animation:fadeUp .9s .3s forwards;position:relative;z-index:2;}
     .hero-title span{color:var(--accent);}
     
     .hero-desc{font-size:clamp(16px, 3vw, 22px);color:var(--text-muted);max-width:600px;margin-top:20px;opacity:0;animation:fadeUp .9s .5s forwards;position:relative;z-index:2;line-height:1.6;}
@@ -162,6 +167,7 @@
     /* MOBILE OVERRIDES */
     @media(max-width:768px){
       nav{top:12px;left:12px;transform:none;padding:0 4px;width:calc(100vw - 24px);--nav-progress:1;}
+      nav{top:12px;padding:0 4px;width:calc(100vw - 24px);}
       .nav-items{display:none;}
       .nav-hamburger{display:flex;align-items:center;}
       #cur,#cur-ring{display:none;}body{cursor:auto;}
@@ -180,6 +186,7 @@
     .mobile-menu {
       display:flex;flex-direction:column;gap:8px;position:fixed;top:72px;left:50%;
       width:min(300px, calc(100vw - 24px));
+      width:calc(100vw - 24px); max-width:400px;
       z-index:999;padding:16px;border-radius:24px;
       background:rgba(255, 255, 255, 0.9);backdrop-filter:saturate(180%) blur(30px);-webkit-backdrop-filter:saturate(180%) blur(30px);
       border:1px solid var(--border); box-shadow:0 20px 40px rgba(0,0,0,0.08);
@@ -196,6 +203,10 @@
     @media(max-width:768px){
       .mobile-menu{left:12px;width:calc(100vw - 24px);}
     }
+      transform:translateX(-50%) translateY(-10px) scale(.98);
+      transition:all .3s cubic-bezier(.22,1,.36,1);
+    }
+    .mobile-menu.open { opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%) translateY(0) scale(1); }
     .mob-link { display:block;padding:16px;border-radius:16px;text-decoration:none;color:var(--text-main);font-size:14px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;text-align:center;background:rgba(0,0,0,0.03); }
     .mob-link:active { background:rgba(237, 108, 54, 0.1); color:var(--accent); }
 
@@ -214,6 +225,7 @@
 
 <nav id="nav">
   <a href="#hero" class="nav-logo"><span class="logo-full">TASK MANAGER</span><span class="logo-short" aria-hidden="true">T.M.</span></a>
+  <a href="#hero" class="nav-logo">TASK MANAGER</a>
   <ul class="nav-items">
     <li class="nav-item"><a href="#about">About</a></li>
     <li class="nav-item"><a href="#members">Members</a></li>
@@ -412,6 +424,12 @@
 
   window.addEventListener('scroll', onScroll, { passive: true });
   updateNavState();
+  // ── Nav: slim on scroll ──
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 80) nav.classList.add('slim');
+    else nav.classList.remove('slim');
+  }, { passive: true });
 
   // ── Mobile Menu ──
   const hamburger = document.getElementById('navHamburger');
@@ -504,4 +522,5 @@
 
 </script>
 </body>
+</html>
 </html>
