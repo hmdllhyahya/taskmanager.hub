@@ -405,6 +405,22 @@
   // ── Nav: collapse + smooth move to top-left on scroll ──
   const nav = document.getElementById('nav');
   const SCROLL_RANGE = 220;
+  const mobileBp = window.matchMedia('(max-width: 768px)');
+
+  // ── Mobile Menu ──
+  const hamburger = document.getElementById('navHamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  const updateNavState = () => {
+    const progress = Math.min(window.scrollY / SCROLL_RANGE, 1);
+    const shouldCollapse = progress > 0.55 || mobileBp.matches;
+
+    nav.style.setProperty('--nav-progress', mobileBp.matches ? '1' : progress.toFixed(3));
+    nav.classList.toggle('collapsed', shouldCollapse);
+
+    if (!shouldCollapse && mobileMenu.classList.contains('open')) {
+      toggleMob(false);
+    }
 
   const updateNavState = () => {
     const progress = Math.min(window.scrollY / SCROLL_RANGE, 1);
@@ -423,6 +439,8 @@
   };
 
   window.addEventListener('scroll', onScroll, { passive: true });
+  mobileBp.addEventListener('change', updateNavState);
+  updateNavState();
   updateNavState();
   // ── Nav: slim on scroll ──
   const nav = document.getElementById('nav');
@@ -441,6 +459,9 @@
   };
 
   function toggleMob(forceOpen) {
+    const navCollapsed = nav.classList.contains('collapsed') || mobileBp.matches;
+    if (!navCollapsed && forceOpen !== false) return;
+
     const isOpen = mobileMenu.classList.contains('open');
     const nextOpen = typeof forceOpen === 'boolean' ? forceOpen : !isOpen;
 
