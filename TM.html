@@ -174,6 +174,13 @@
     .mobile-menu.open { opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%) translateY(0) scale(1); }
     .mob-link { display:block;padding:16px;border-radius:16px;text-decoration:none;color:var(--text-main);font-size:14px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;text-align:center;background:rgba(0,0,0,0.03); }
     .mob-link:active { background:rgba(237, 108, 54, 0.1); color:var(--accent); }
+
+
+    @media (pointer: coarse) {
+      body { cursor: auto; }
+      .nav-item>a, .nav-hamburger, .mob-link, .mcard, .modal-close { cursor: pointer; }
+      #cur, #cur-ring { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -187,7 +194,7 @@
     <li class="nav-item"><a href="#about">About</a></li>
     <li class="nav-item"><a href="#members">Members</a></li>
   </ul>
-  <button class="nav-hamburger" id="navHamburger">&#9776;</button>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileMenu">&#9776;</button>
 </nav>
 
 <section id="hero">
@@ -298,9 +305,9 @@
   <div class="f-copy">&copy; 2026 TASK MANAGER. All rights reserved. (Not actually a company).</div>
 </footer>
 
-<div class="modal-overlay" id="memberModal">
+<div class="modal-overlay" id="memberModal" role="dialog" aria-modal="true" aria-labelledby="modName" aria-describedby="modBio">
   <div class="modal-content">
-    <button class="modal-close" id="closeModal">✕</button>
+    <button class="modal-close" id="closeModal" aria-label="Close member details">✕</button>
     <img src="" alt="" class="modal-img" id="modImg" />
     <div class="modal-info">
       <h3 id="modName">Name</h3>
@@ -327,26 +334,37 @@
   // ── Cursor ──
   const cur = document.getElementById('cur');
   const ring = document.getElementById('cur-ring');
-  let mx = window.innerWidth/2, my = window.innerHeight/2;
-  let rx = mx, ry = my;
-  let cursorActive = false;
+  const finePointer = window.matchMedia('(pointer: fine)').matches;
 
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    cur.style.left = mx + 'px'; cur.style.top = my + 'px';
-    if (!cursorActive) { cursorActive = true; document.body.classList.add('cursor-active'); }
-  });
-  
-  (function loop() {
-    rx += (mx - rx) * .1; ry += (my - ry) * .1;
-    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-    requestAnimationFrame(loop);
-  })();
-  
-  document.querySelectorAll('a, button, .mcard, .modal-close').forEach(el => {
-    el.addEventListener('mouseenter', () => document.body.classList.add('ch'));
-    el.addEventListener('mouseleave', () => document.body.classList.remove('ch'));
-  });
+  if (finePointer && cur && ring) {
+    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    let rx = mx, ry = my;
+    let cursorActive = false;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX;
+      my = e.clientY;
+      cur.style.left = mx + 'px';
+      cur.style.top = my + 'px';
+      if (!cursorActive) {
+        cursorActive = true;
+        document.body.classList.add('cursor-active');
+      }
+    });
+
+    (function loop() {
+      rx += (mx - rx) * 0.1;
+      ry += (my - ry) * 0.1;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(loop);
+    })();
+
+    document.querySelectorAll('a, button, .mcard, .modal-close').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('ch'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('ch'));
+    });
+  }
 
   // ── Nav: slim on scroll ──
   const nav = document.getElementById('nav');
@@ -359,20 +377,30 @@
   const hamburger = document.getElementById('navHamburger');
   const mobileMenu = document.getElementById('mobileMenu');
 
-  function toggleMob() {
+  const updateScrollLock = () => {
+    const shouldLock = modal?.classList.contains('open') || mobileMenu?.classList.contains('open');
+    document.body.classList.toggle('menu-open', !!shouldLock);
+  };
+
+  function toggleMob(forceOpen) {
     const isOpen = mobileMenu.classList.contains('open');
-    if(isOpen) {
-      mobileMenu.classList.remove('open');
-      hamburger.textContent = '☰';
-    } else {
-      mobileMenu.classList.add('open');
-      hamburger.textContent = '✕';
-    }
+    const nextOpen = typeof forceOpen === 'boolean' ? forceOpen : !isOpen;
+
+    mobileMenu.classList.toggle('open', nextOpen);
+    hamburger.textContent = nextOpen ? '✕' : '☰';
+    hamburger.setAttribute('aria-expanded', String(nextOpen));
+    updateScrollLock();
   }
 
   if (hamburger && mobileMenu) {
-    hamburger.addEventListener('click', toggleMob);
-    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', toggleMob));
+    hamburger.addEventListener('click', () => toggleMob());
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => toggleMob(false)));
+
+    document.addEventListener('click', (e) => {
+      if (!mobileMenu.classList.contains('open')) return;
+      if (mobileMenu.contains(e.target) || hamburger.contains(e.target)) return;
+      toggleMob(false);
+    });
   }
 
   // ── Scroll Reveal ──
@@ -411,13 +439,13 @@
       modImg.alt = card.dataset.name;
 
       modal.classList.add('open');
-      document.body.classList.add('menu-open');
+      updateScrollLock();
     });
   });
 
   const closeModal = () => {
     modal.classList.remove('open');
-    document.body.classList.remove('menu-open');
+    updateScrollLock();
   };
 
   closeModalBtn.addEventListener('click', closeModal);
@@ -429,9 +457,9 @@
   });
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('open')) {
-      closeModal();
-    }
+    if (e.key !== 'Escape') return;
+    if (modal.classList.contains('open')) closeModal();
+    if (mobileMenu.classList.contains('open')) toggleMob(false);
   });
 
 </script>
